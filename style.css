@@ -5,7 +5,7 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--black);font-family:Arial,Helvetica,sans-serif}
 
-/* 1. ШАПКА (TOPBAR) */
+/* Topbar */
 .topbar{height:74px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 6%;position:sticky;top:0;z-index:5}
 .brand{display:flex;align-items:center;height:100%}
 .brand-logo {
@@ -19,7 +19,7 @@ body{margin:0;background:var(--bg);color:var(--black);font-family:Arial,Helvetic
 .hidden{display:none!important}
 .auth-card{max-width:430px;margin:30px auto;background:#fff;padding:36px;border-radius:28px;box-shadow:0 12px 40px rgba(0,0,0,.07)}
 
-/* 2. КРУГ АВТОРИЗАЦИИ */
+/* Logo circle */
 .logo-circle{
   width:64px;
   height:64px;
@@ -46,8 +46,8 @@ h3{margin-top:0}
 .tab{flex:1;border:0;background:transparent;padding:12px;border-radius:10px;font-weight:700;cursor:pointer}
 .tab.active{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 label{display:block;font-size:13px;font-weight:700;margin:15px 0}
-input{width:100%;padding:14px 15px;border:1px solid #d9d9d5;border-radius:12px;margin-top:7px;font-size:15px;outline:none}
-input:focus{border-color:#999}
+input, select{width:100%;padding:14px 15px;border:1px solid #d9d9d5;border-radius:12px;margin-top:7px;font-size:15px;outline:none;background:#fff}
+input:focus, select:focus{border-color:#999}
 .primary-btn,.ghost-btn{border:0;border-radius:13px;padding:13px 18px;font-weight:800;cursor:pointer}
 .primary-btn{background:var(--yellow);color:#111}
 .primary-btn:hover{background:var(--yellow2)}
@@ -69,7 +69,7 @@ input:focus{border-color:#999}
 .badge{background:#eee;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:900}
 .badge.admin{background:var(--yellow)}
 
-/* 3. БАНКОВСКАЯ КАРТА */
+/* Card UI */
 .bank-card{
   max-width:560px;
   min-height:310px;
@@ -101,7 +101,7 @@ input:focus{border-color:#999}
 .card-bottom small{font-size:8px;opacity:.65}
 .card-bottom strong{font-size:12px}
 
-/* ФОРМА ПЕРЕВОДА */
+/* Forms & Transactions */
 .transfer-form {
   display: flex;
   flex-direction: column;

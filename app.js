@@ -21,7 +21,7 @@ import {
   serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Конфигурация Firebase (замените на свои данные)
+// Конфигурация Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCqAJr5gUwWbcMmzDoFhknqrnjqK4UDcTc",
   authDomain: "ponkofbank.firebaseapp.com",
@@ -93,7 +93,7 @@ tabs.forEach(tab => {
 });
 
 // Авторизация / Регистрация
-authForm.addEventListener('submit', async (e) => {
+authForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
   authMessage.textContent = 'Загрузка...';
   authMessage.className = 'message muted';
@@ -125,7 +125,7 @@ authForm.addEventListener('submit', async (e) => {
 });
 
 // Выход
-logoutBtn.addEventListener('click', () => {
+logoutBtn?.addEventListener('click', () => {
   signOut(auth);
 });
 
@@ -171,7 +171,7 @@ function listenUserData(uid) {
 }
 
 // Генерация и открытие карты
-openCardBtn.addEventListener('click', async () => {
+openCardBtn?.addEventListener('click', async () => {
   if (!currentUser) return;
   openCardBtn.disabled = true;
 
@@ -240,7 +240,6 @@ transferForm?.addEventListener('submit', async (e) => {
   }
 
   try {
-    // 1. Поиск карты в базе
     const cardsQuery = query(collection(db, 'cards'), where('cardNumber', '==', rawCardNumber));
     const querySnapshot = await getDocs(cardsQuery);
 
@@ -259,7 +258,6 @@ transferForm?.addEventListener('submit', async (e) => {
       return;
     }
 
-    // 2. Транзакционное списание и зачисление
     await runTransaction(db, async (transaction) => {
       const senderRef = doc(db, 'users', currentUser.uid);
       const recipientRef = doc(db, 'users', recipientUid);
@@ -275,11 +273,9 @@ transferForm?.addEventListener('submit', async (e) => {
         throw new Error('Недостаточно средств на балансе.');
       }
 
-      // Обновление балансов
       transaction.update(senderRef, { balance: senderBalance - amount });
       transaction.update(recipientRef, { balance: (recipientDoc.data().balance || 0) + amount });
 
-      // Запись в историю отправителя
       const senderTxRef = doc(collection(db, `users/${currentUser.uid}/transactions`));
       transaction.set(senderTxRef, {
         title: `Перевод на карту *${rawCardNumber.slice(-4)}`,
@@ -287,7 +283,6 @@ transferForm?.addEventListener('submit', async (e) => {
         createdAt: serverTimestamp()
       });
 
-      // Запись в историю получателя
       const recipientTxRef = doc(collection(db, `users/${recipientUid}/transactions`));
       transaction.set(recipientTxRef, {
         title: `Пополнение с карты`,
@@ -339,7 +334,7 @@ function listenTransactions(uid) {
   });
 }
 
-// Админ: Начисление баланса пользователю
+// Админ: Начисление баланса
 creditForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
   creditMessage.textContent = 'Выполнение...';

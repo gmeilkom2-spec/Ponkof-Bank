@@ -385,8 +385,3 @@ creditForm?.addEventListener('submit', async (e) => {
     creditMessage.className = 'message error';
   }
 });
-
-  <footer>ПОНЬКОФ • демонстрационный виртуальный банк</footer>
-  <script type="module" src="app.js"></script>
-</body>
-</html>

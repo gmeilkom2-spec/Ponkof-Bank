@@ -8,7 +8,10 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="brand"><span class="brand-mark">П</span><span>ПОНЬКОФ</span></div>
+    <div class="brand">
+      <img src="logo.png" alt="Логотип Понькоф" class="brand-logo">
+      <span>ПОНЬКОФ</span>
+    </div>
     <div id="userArea" class="user-area hidden">
       <span id="userEmail"></span>
       <button id="logoutBtn" class="ghost-btn">Выйти</button>
@@ -17,7 +20,9 @@
 
   <main class="container">
     <section id="authView" class="auth-card">
-      <div class="logo-circle">П</div>
+      <div class="logo-circle">
+        <img src="logo.png" alt="Логотип Понькоф" class="auth-logo">
+      </div>
       <h1>Понькоф</h1>
       <p class="muted">Личный кабинет и виртуальная карта</p>
 
@@ -64,7 +69,13 @@
           <span class="badge">VIRTUAL</span>
         </div>
         <div class="bank-card">
-          <div class="card-top"><span>ПОНЬКОФ</span><span>VISA</span></div>
+          <div class="card-top">
+            <div class="card-brand">
+              <img src="logo.png" alt="ПОНЬКОФ" class="card-logo">
+              <span>ПОНЬКОФ</span>
+            </div>
+            <span>VISA</span>
+          </div>
           <div class="chip"></div>
           <div class="card-number" id="cardNumber">•••• •••• •••• ••••</div>
           <div class="card-bottom">
@@ -104,6 +115,11 @@
       </section>
     </section>
   </main>
+
+  <footer>ПОНЬКОФ • демонстрационный виртуальный банк</footer>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
 
   <footer>ПОНЬКОФ • демонстрационный виртуальный банк</footer>
   <script type="module" src="app.js"></script>

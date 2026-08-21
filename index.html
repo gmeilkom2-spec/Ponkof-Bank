@@ -84,23 +84,6 @@
         </div>
       </div>
 
-      <!-- Блок перевода денег по номеру карты -->
-      <div class="section">
-        <div class="section-head">
-          <h2>Перевод по номеру карты</h2>
-        </div>
-        <form id="transferForm" class="transfer-form">
-          <label>Номер карты получателя
-            <input id="transferCardNumber" type="text" maxlength="19" required placeholder="0000 0000 0000 0000">
-          </label>
-          <label>Сумма перевода, ₸
-            <input id="transferAmount" type="number" min="1" step="0.01" required placeholder="1000">
-          </label>
-          <button class="primary-btn" type="submit" id="transferSubmit">Перевести</button>
-          <p id="transferMessage" class="message"></p>
-        </form>
-      </div>
-
       <div class="section">
         <div class="section-head"><h2>История операций</h2></div>
         <div id="transactions" class="transactions">
@@ -115,16 +98,22 @@
         </div>
         <div class="admin-grid">
           <form id="creditForm" class="admin-form">
-            <h3>Начислить деньги</h3>
+            <h3>Управление балансом</h3>
+            <label>Действие
+              <select id="creditAction">
+                <option value="add">Начислить деньги (+)</option>
+                <option value="sub">Списать деньги (-)</option>
+              </select>
+            </label>
             <label>Email клиента<input id="creditEmail" type="email" required placeholder="client@example.com"></label>
             <label>Сумма, ₸<input id="creditAmount" type="number" min="1" step="0.01" required placeholder="1000"></label>
-            <label>Комментарий<input id="creditReason" type="text" placeholder="Бонус"></label>
-            <button class="primary-btn" type="submit">Начислить</button>
+            <label>Комментарий<input id="creditReason" type="text" placeholder="Корректировка"></label>
+            <button class="primary-btn" type="submit" id="adminSubmitBtn">Выполнить</button>
             <p id="creditMessage" class="message"></p>
           </form>
           <div class="admin-note">
             <h3>Важно</h3>
-            <p>Начисление выполняется через Firestore. Правила базы разрешают эту операцию только аккаунту администратора.</p>
+            <p>Операции списания и начисления выполняются через Firestore. При списании списание произойдет только при наличии средств на счету.</p>
           </div>
         </div>
       </section>
@@ -135,7 +124,3 @@
   <script type="module" src="app.js"></script>
 </body>
 </html>
-  <script type="module" src="app.js"></script>
-</body>
-</html>
-

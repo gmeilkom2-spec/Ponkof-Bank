@@ -5,7 +5,6 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--black);font-family:Arial,Helvetica,sans-serif}
 
-/* Topbar */
 .topbar{height:74px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 6%;position:sticky;top:0;z-index:5}
 .brand{display:flex;align-items:center;height:100%}
 .brand-logo { max-height: 48px; width: auto; object-fit: contain; }
@@ -15,7 +14,6 @@ body{margin:0;background:var(--bg);color:var(--black);font-family:Arial,Helvetic
 .hidden{display:none!important}
 .auth-card{max-width:430px;margin:30px auto;background:#fff;padding:36px;border-radius:28px;box-shadow:0 12px 40px rgba(0,0,0,.07)}
 
-/* Logo circle */
 .logo-circle{
   width:64px; height:64px; background:var(--yellow); border-radius:50%;
   display:flex; align-items:center; justify-content:center; margin-bottom:20px;
@@ -55,7 +53,6 @@ input:focus, select:focus{border-color:#999}
 .badge{background:#eee;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:900}
 .badge.admin{background:var(--yellow)}
 
-/* Стили блока кредитования */
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 .credit-calc-preview {
   background: #f9f9f8;
@@ -74,7 +71,6 @@ input:focus, select:focus{border-color:#999}
 .credit-amount { font-size: 28px; font-weight: 900; color: var(--black); }
 .credit-sub { font-size: 18px; font-weight: 700; color: var(--gray); }
 
-/* Card UI */
 .bank-card{
   width:100%; max-width:420px; min-height:240px; border-radius:20px; padding:22px;
   background:linear-gradient(135deg,#ffd900,#ffb900);
@@ -94,7 +90,6 @@ input:focus, select:focus{border-color:#999}
 .card-bottom small{font-size:8px;opacity:.65}
 .card-bottom strong{font-size:11px}
 
-/* Card Information Box */
 .card-info-box {
   background: #f9f9f8;
   border: 1px solid var(--line);
@@ -112,7 +107,6 @@ input:focus, select:focus{border-color:#999}
 }
 .info-row span { color: var(--gray); }
 
-/* Transactions & Admin */
 .transactions{display:flex;flex-direction:column}
 .tx{display:flex;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--line)}
 .tx:last-child{border-bottom:0}
@@ -125,7 +119,6 @@ input:focus, select:focus{border-color:#999}
 .admin-note{background:#fff8cc;border-radius:18px;padding:22px}
 footer{text-align:center;color:#999;font-size:12px;padding:25px}
 
-/* АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ УСТРОЙСТВА */
 @media(max-width: 768px){
   .topbar{padding: 0 16px; height: 64px;}
   .container{padding: 20px 12px 40px;}

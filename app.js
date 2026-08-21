@@ -10,16 +10,17 @@ import {
 
 /* 1. Вставь сюда конфигурацию своего Firebase-проекта. */
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.firebasestorage.app",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCqAJr5gUwWbcMmzDoFhknqrnjqK4UDcTc",
+  authDomain: "ponkofbank.firebaseapp.com",
+  projectId: "ponkofbank",
+  storageBucket: "ponkofbank.firebasestorage.app",
+  messagingSenderId: "980025588057",
+  appId: "1:980025588057:web:6d6e1929542142979cf448",
+  measurementId: "G-0DB4TG8VSL"
 };
 
 /* 2. Здесь укажи email администратора. Тот же email нужно указать в firestore.rules. */
-const ADMIN_EMAIL = "YOUR_ADMIN_EMAIL@example.com";
+const ADMIN_EMAIL = "gmeilkom2@gmail.com";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);

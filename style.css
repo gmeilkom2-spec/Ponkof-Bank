@@ -59,3 +59,43 @@ input:focus{border-color:#999}
 .admin-note{background:#fff8cc;border-radius:18px;padding:22px}
 footer{text-align:center;color:#999;font-size:12px;padding:25px}
 @media(max-width:700px){.topbar{padding:0 18px}.user-area span{display:none}.container{padding:30px 15px}.welcome{align-items:flex-start;flex-direction:column}.grid,.admin-grid{grid-template-columns:1fr}.card-number{font-size:20px}.bank-card{min-height:270px}.balance{font-size:34px}}
+/* Выравнивание и компактный логотип в шапке */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-logo {
+  height: 18px; /* Уменьшено с 28px */
+  width: auto;
+  object-fit: contain;
+}
+
+/* Компактный логотип в круге формы входа */
+.logo-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 12px; /* Увеличен отступ внутри круга, чтобы логотип стал меньше */
+}
+
+.auth-logo {
+  max-width: 65%; /* Уменьшено, чтобы логотип свободно сидел в круге */
+  max-height: 65%;
+  object-fit: contain;
+}
+
+/* Компактный логотип на банковской карте */
+.card-brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.card-logo {
+  height: 14px; /* Уменьшено с 22px */
+  width: auto;
+  object-fit: contain;
+}

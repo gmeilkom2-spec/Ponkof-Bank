@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Понькоф — Платежный терминал</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .terminal-card {
+      max-width: 480px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 36px;
+      border-radius: 28px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.08);
+    }
+    .terminal-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .terminal-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--yellow);
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="logo.png" alt="ПОНЬКОФ" class="brand-logo">
+    </div>
+    <span class="badge">POS-TERMINAL</span>
+  </header>
+
+  <main class="container">
+    <section class="terminal-card">
+      <div class="terminal-header">
+        <div class="terminal-icon">₸</div>
+        <h1>Оплата по карте</h1>
+        <p class="muted">Введите данные для проведения платежа</p>
+      </div>
+
+      <form id="terminalForm">
+        <label>Номер карты
+          <input id="termCardNumber" type="text" placeholder="4400 0000 0000 0000" required maxlength="19">
+        </label>
+        
+        <div class="form-row">
+          <label>Срок (ММ/ГГ)
+            <input id="termExpiry" type="text" placeholder="12/28" required maxlength="5">
+          </label>
+          <label>CVV
+            <input id="termCvv" type="password" placeholder="•••" required maxlength="3">
+          </label>
+        </div>
+
+        <label>Сумма списания (₸)
+          <input id="termAmount" type="number" min="1" step="0.01" placeholder="5000" required>
+        </label>
+
+        <label>Назначение платежа
+          <input id="termReason" type="text" placeholder="Оплата товаров/услуг">
+        </label>
+
+        <button class="primary-btn" type="submit" id="termSubmitBtn" style="width: 100%; margin-top: 15px;">Списать средства</button>
+        <p id="termMessage" class="message"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer>ПОНЬКОФ • Бесконтактная торговая точка</footer>
+  <script type="module" src="terminal.js"></script>
+</body>
+</html>

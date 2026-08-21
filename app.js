@@ -21,7 +21,6 @@ import {
   serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Конфигурация Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCqAJr5gUwWbcMmzDoFhknqrnjqK4UDcTc",
   authDomain: "ponkofbank.firebaseapp.com",
@@ -42,7 +41,6 @@ let userUnsub = null;
 let txUnsub = null;
 let creditUnsub = null;
 
-// Элементы UI
 const authView = document.getElementById('authView');
 const appView = document.getElementById('appView');
 const userArea = document.getElementById('userArea');
@@ -59,7 +57,12 @@ const balanceEl = document.getElementById('balance');
 const statusEl = document.getElementById('status');
 const openCardBtn = document.getElementById('openCardBtn');
 
-// Элементы Кредитов
+const transferForm = document.getElementById('transferForm');
+const transferCardNumber = document.getElementById('transferCardNumber');
+const transferAmount = document.getElementById('transferAmount');
+const transferSubmitBtn = document.getElementById('transferSubmitBtn');
+const transferMessage = document.getElementById('transferMessage');
+
 const creditRequestForm = document.getElementById('creditRequestForm');
 const reqCreditAmount = document.getElementById('reqCreditAmount');
 const reqCreditTerm = document.getElementById('reqCreditTerm');
@@ -89,7 +92,124 @@ const creditForm = document.getElementById('creditForm');
 const creditActionSelect = document.getElementById('creditAction');
 const creditMessage = document.getElementById('creditMessage');
 
-// Переключение Вход / Регистрация
+// Проверка алгоритмом Луна
+function validateLuhn(cardNumber) {
+  const digits = cardNumber.replace(/\D/g, '');
+  if (digits.length < 13 || digits.length > 19) return false;
+  let sum = 0;
+  let shouldDouble = false;
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let digit = parseInt(digits.charAt(i), 10);
+    if (shouldDouble) {
+      digit *= 2;
+      if (digit > 9) digit -= 9;
+    }
+    sum += digit;
+    shouldDouble = !shouldDouble;
+  }
+  return sum % 10 === 0;
+}
+
+// Форматирование ввода карты
+transferCardNumber?.addEventListener('input', (e) => {
+  let val = e.target.value.replace(/\D/g, '');
+  val = val.match(/.{1,4}/g)?.join(' ') || val;
+  e.target.value = val.substring(0, 19);
+});
+
+// Перевод по номеру карты
+transferForm?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!currentUser) return;
+
+  transferMessage.textContent = 'Обработка перевода...';
+  transferMessage.className = 'message muted';
+  transferSubmitBtn.disabled = true;
+
+  const targetCardNum = transferCardNumber.value.trim();
+  const amount = parseFloat(transferAmount.value);
+
+  if (!validateLuhn(targetCardNum)) {
+    transferMessage.textContent = 'Некорректный номер карты.';
+    transferMessage.className = 'message error';
+    transferSubmitBtn.disabled = false;
+    return;
+  }
+
+  if (isNaN(amount) || amount <= 0) {
+    transferMessage.textContent = 'Укажите корректную сумму.';
+    transferMessage.className = 'message error';
+    transferSubmitBtn.disabled = false;
+    return;
+  }
+
+  try {
+    const cardsQuery = query(collection(db, 'cards'), where('cardNumber', '==', targetCardNum));
+    const cardSnap = await getDocs(cardsQuery);
+
+    if (cardSnap.empty) {
+      throw new Error('Карта получателя не найдена.');
+    }
+
+    const recipientCardData = cardSnap.docs[0].data();
+    const recipientUid = recipientCardData.uid;
+
+    if (recipientUid === currentUser.uid) {
+      throw new Error('Нельзя перевести деньги на свою же карту.');
+    }
+
+    await runTransaction(db, async (transaction) => {
+      const senderRef = doc(db, 'users', currentUser.uid);
+      const recipientRef = doc(db, 'users', recipientUid);
+
+      const senderSnap = await transaction.get(senderRef);
+      const recipientSnap = await transaction.get(recipientRef);
+
+      if (!senderSnap.exists() || !recipientSnap.exists()) {
+        throw new Error('Ошибка взаимодействия с аккаунтами.');
+      }
+
+      const senderBalance = senderSnap.data().balance || 0;
+      if (senderBalance < amount) {
+        throw new Error('Недостаточно средств на балансе.');
+      }
+
+      const recipientBalance = recipientSnap.data().balance || 0;
+
+      // Списание у отправителя
+      transaction.update(senderRef, { balance: senderBalance - amount });
+      // Зачисление получателю
+      transaction.update(recipientRef, { balance: recipientBalance + amount });
+
+      // Запись транзакции отправителю
+      const senderTxRef = doc(collection(db, `users/${currentUser.uid}/transactions`));
+      transaction.set(senderTxRef, {
+        title: `Перевод на карту ${targetCardNum.slice(-4)}`,
+        amount: -amount,
+        createdAt: serverTimestamp()
+      });
+
+      // Запись транзакции получателю
+      const recipientTxRef = doc(collection(db, `users/${recipientUid}/transactions`));
+      transaction.set(recipientTxRef, {
+        title: `Перевод с карты`,
+        amount: amount,
+        createdAt: serverTimestamp()
+      });
+    });
+
+    transferMessage.textContent = 'Перевод успешно выполнен!';
+    transferMessage.className = 'message success';
+    transferForm.reset();
+
+  } catch (err) {
+    transferMessage.textContent = err.message || 'Ошибка выполнения перевода.';
+    transferMessage.className = 'message error';
+  } finally {
+    transferSubmitBtn.disabled = false;
+  }
+});
+
 tabs.forEach(tab => {
   tab.addEventListener('click', () => {
     tabs.forEach(t => t.classList.remove('active'));
@@ -107,7 +227,6 @@ tabs.forEach(tab => {
   });
 });
 
-// Авторизация / Регистрация
 authForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
   authMessage.textContent = 'Загрузка...';
@@ -139,12 +258,10 @@ authForm?.addEventListener('submit', async (e) => {
   }
 });
 
-// Выход
 logoutBtn?.addEventListener('click', () => {
   signOut(auth);
 });
 
-// Отслеживание входа
 onAuthStateChanged(auth, (user) => {
   currentUser = user;
 
@@ -169,7 +286,6 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// Профиль пользователя
 function listenUserData(uid) {
   userUnsub = onSnapshot(doc(db, 'users', uid), (docSnap) => {
     if (docSnap.exists()) {
@@ -187,13 +303,10 @@ function listenUserData(uid) {
   });
 }
 
-/* --- КРЕДИТНЫЙ КАЛЬКУЛЯТОР И ЛОГИКА --- */
-
 function calculateMonthlyPayment(amount, months) {
-  const annualRate = 0.12; // 12% годовых
+  const annualRate = 0.12;
   const monthlyRate = annualRate / 12;
-  const payment = (amount * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
-  return payment;
+  return (amount * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
 }
 
 function updateCreditCalc() {
@@ -211,7 +324,6 @@ reqCreditAmount?.addEventListener('input', updateCreditCalc);
 reqCreditTerm?.addEventListener('change', updateCreditCalc);
 updateCreditCalc();
 
-// Заявка на кредит
 creditRequestForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!currentUser) return;
@@ -265,7 +377,6 @@ creditRequestForm?.addEventListener('submit', async (e) => {
   }
 });
 
-// Отслеживание активного кредита
 function listenUserCredit(uid) {
   creditUnsub = onSnapshot(doc(db, 'credits', uid), (docSnap) => {
     if (docSnap.exists() && docSnap.data().debt > 0.01) {
@@ -282,7 +393,6 @@ function listenUserCredit(uid) {
   });
 }
 
-// Погашение кредита
 payCreditBtn?.addEventListener('click', async () => {
   if (!currentUser) return;
 
@@ -333,9 +443,27 @@ payCreditBtn?.addEventListener('click', async () => {
   }
 });
 
-/* --- КАРТЫ И ОПЕРАЦИИ --- */
+// Генерирует валидный по алгоритму Луна номер карты (начинается на 4400)
+function generateLuhnCardNumber() {
+  const prefix = [4, 4, 0, 0];
+  const randomDigits = Array.from({ length: 11 }, () => Math.floor(Math.random() * 10));
+  const full15 = [...prefix, ...randomDigits];
 
-// Выпуск карты
+  let sum = 0;
+  for (let i = 0; i < full15.length; i++) {
+    let digit = full15[i];
+    if (i % 2 === 0) {
+      digit *= 2;
+      if (digit > 9) digit -= 9;
+    }
+    sum += digit;
+  }
+
+  const checkDigit = (10 - (sum % 10)) % 10;
+  const rawNumber = [...full15, checkDigit].join('');
+  return rawNumber.match(/.{1,4}/g).join(' ');
+}
+
 openCardBtn?.addEventListener('click', async () => {
   if (!currentUser) return;
   openCardBtn.disabled = true;
@@ -345,12 +473,12 @@ openCardBtn?.addEventListener('click', async () => {
     const cardSnap = await getDoc(cardRef);
 
     if (!cardSnap.exists()) {
-      const randomCardNumber = '4400 ' + Array.from({length: 3}, () => Math.floor(1000 + Math.random() * 9000)).join(' ');
+      const validCardNumber = generateLuhnCardNumber();
       const randomCvv = Math.floor(100 + Math.random() * 900).toString();
 
       await setDoc(cardRef, {
         uid: currentUser.uid,
-        cardNumber: randomCardNumber,
+        cardNumber: validCardNumber,
         expiry: '12/28',
         cvv: randomCvv,
         holder: (displayNameEl.textContent || 'КЛИЕНТ').toUpperCase(),
@@ -364,7 +492,6 @@ openCardBtn?.addEventListener('click', async () => {
   }
 });
 
-// Данные карты
 function listenUserCard(uid) {
   onSnapshot(doc(db, 'cards', uid), (docSnap) => {
     if (docSnap.exists()) {
@@ -389,7 +516,6 @@ function listenUserCard(uid) {
   });
 }
 
-// Копирование номера карты
 copyCardBtn?.addEventListener('click', () => {
   const num = infoCardNumberEl ? infoCardNumberEl.textContent : '';
   if (num) {
@@ -401,7 +527,6 @@ copyCardBtn?.addEventListener('click', () => {
   }
 });
 
-// История транзакций
 function listenTransactions(uid) {
   const q = query(
     collection(db, `users/${uid}/transactions`), 
@@ -435,7 +560,6 @@ function listenTransactions(uid) {
   });
 }
 
-// Админ-панель: Начисление / Списание
 creditForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
   creditMessage.textContent = 'Обработка...';

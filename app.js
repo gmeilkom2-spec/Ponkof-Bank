@@ -21,6 +21,7 @@ import {
   serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+// Конфигурация Firebase (замените на свои данные)
 const firebaseConfig = {
   apiKey: "AIzaSyCqAJr5gUwWbcMmzDoFhknqrnjqK4UDcTc",
   authDomain: "ponkofbank.firebaseapp.com",
@@ -40,7 +41,7 @@ let currentAuthMode = 'login';
 let userUnsub = null;
 let txUnsub = null;
 
-// DOM элементы
+// Элементы DOM
 const authView = document.getElementById('authView');
 const appView = document.getElementById('appView');
 const userArea = document.getElementById('userArea');
@@ -63,13 +64,17 @@ const cardExpiryEl = document.getElementById('cardExpiry');
 const cardCvvEl = document.getElementById('cardCvv');
 const cardHolderEl = document.getElementById('cardHolder');
 
+const transferForm = document.getElementById('transferForm');
+const transferCardInput = document.getElementById('transferCardNumber');
+const transferAmountInput = document.getElementById('transferAmount');
+const transferMessage = document.getElementById('transferMessage');
+
 const transactionsEl = document.getElementById('transactions');
 const adminSection = document.getElementById('adminSection');
 const creditForm = document.getElementById('creditForm');
-const creditActionSelect = document.getElementById('creditAction');
 const creditMessage = document.getElementById('creditMessage');
 
-// Переключение Вход / Регистрация
+// Переключение табов Авторизации / Регистрации
 tabs.forEach(tab => {
   tab.addEventListener('click', () => {
     tabs.forEach(t => t.classList.remove('active'));
@@ -87,8 +92,8 @@ tabs.forEach(tab => {
   });
 });
 
-// Авторизация
-authForm?.addEventListener('submit', async (e) => {
+// Авторизация / Регистрация
+authForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   authMessage.textContent = 'Загрузка...';
   authMessage.className = 'message muted';
@@ -120,11 +125,11 @@ authForm?.addEventListener('submit', async (e) => {
 });
 
 // Выход
-logoutBtn?.addEventListener('click', () => {
+logoutBtn.addEventListener('click', () => {
   signOut(auth);
 });
 
-// Слушатель авторизации
+// Отслеживание состояния авторизации
 onAuthStateChanged(auth, (user) => {
   currentUser = user;
 
@@ -147,6 +152,7 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
+// Подписка на данные пользователя
 function listenUserData(uid) {
   userUnsub = onSnapshot(doc(db, 'users', uid), (docSnap) => {
     if (docSnap.exists()) {
@@ -164,8 +170,8 @@ function listenUserData(uid) {
   });
 }
 
-// Выпуск карты
-openCardBtn?.addEventListener('click', async () => {
+// Генерация и открытие карты
+openCardBtn.addEventListener('click', async () => {
   if (!currentUser) return;
   openCardBtn.disabled = true;
 
@@ -187,12 +193,13 @@ openCardBtn?.addEventListener('click', async () => {
       });
     }
   } catch (err) {
-    alert('Ошибка создания карты: ' + err.message);
+    alert('Ошибка при создании карты: ' + err.message);
   } finally {
     openCardBtn.disabled = false;
   }
 });
 
+// Чтение данных карты
 function listenUserCard(uid) {
   onSnapshot(doc(db, 'cards', uid), (docSnap) => {
     if (docSnap.exists()) {
@@ -210,7 +217,95 @@ function listenUserCard(uid) {
   });
 }
 
-// Загрузка транзакций
+// Форматирование ввода номера карты получателя
+transferCardInput?.addEventListener('input', (e) => {
+  let value = e.target.value.replace(/\D/g, '');
+  value = value.match(/.{1,4}/g)?.join(' ') || '';
+  e.target.value = value.substring(0, 19);
+});
+
+// ЛОГИКА ПЕРЕВОДА ДЕНЕГ
+transferForm?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  transferMessage.textContent = 'Обработка перевода...';
+  transferMessage.className = 'message muted';
+
+  const rawCardNumber = transferCardInput.value.trim();
+  const amount = parseFloat(transferAmountInput.value);
+
+  if (amount <= 0 || isNaN(amount)) {
+    transferMessage.textContent = 'Укажите корректную сумму.';
+    transferMessage.className = 'message error';
+    return;
+  }
+
+  try {
+    // 1. Поиск карты в базе
+    const cardsQuery = query(collection(db, 'cards'), where('cardNumber', '==', rawCardNumber));
+    const querySnapshot = await getDocs(cardsQuery);
+
+    if (querySnapshot.empty) {
+      transferMessage.textContent = 'Карта получателя не найдена.';
+      transferMessage.className = 'message error';
+      return;
+    }
+
+    const recipientCardDoc = querySnapshot.docs[0];
+    const recipientUid = recipientCardDoc.data().uid;
+
+    if (recipientUid === currentUser.uid) {
+      transferMessage.textContent = 'Нельзя переводить самому себе.';
+      transferMessage.className = 'message error';
+      return;
+    }
+
+    // 2. Транзакционное списание и зачисление
+    await runTransaction(db, async (transaction) => {
+      const senderRef = doc(db, 'users', currentUser.uid);
+      const recipientRef = doc(db, 'users', recipientUid);
+
+      const senderDoc = await transaction.get(senderRef);
+      const recipientDoc = await transaction.get(recipientRef);
+
+      if (!senderDoc.exists()) throw new Error('Ваш профиль не найден.');
+      if (!recipientDoc.exists()) throw new Error('Получатель не найден.');
+
+      const senderBalance = senderDoc.data().balance || 0;
+      if (senderBalance < amount) {
+        throw new Error('Недостаточно средств на балансе.');
+      }
+
+      // Обновление балансов
+      transaction.update(senderRef, { balance: senderBalance - amount });
+      transaction.update(recipientRef, { balance: (recipientDoc.data().balance || 0) + amount });
+
+      // Запись в историю отправителя
+      const senderTxRef = doc(collection(db, `users/${currentUser.uid}/transactions`));
+      transaction.set(senderTxRef, {
+        title: `Перевод на карту *${rawCardNumber.slice(-4)}`,
+        amount: -amount,
+        createdAt: serverTimestamp()
+      });
+
+      // Запись в историю получателя
+      const recipientTxRef = doc(collection(db, `users/${recipientUid}/transactions`));
+      transaction.set(recipientTxRef, {
+        title: `Пополнение с карты`,
+        amount: amount,
+        createdAt: serverTimestamp()
+      });
+    });
+
+    transferMessage.textContent = 'Перевод выполнен успешно!';
+    transferMessage.className = 'message success';
+    transferForm.reset();
+  } catch (err) {
+    transferMessage.textContent = err.message || 'Ошибка при переводе.';
+    transferMessage.className = 'message error';
+  }
+});
+
+// Загрузка истории операций
 function listenTransactions(uid) {
   const q = query(
     collection(db, `users/${uid}/transactions`), 
@@ -244,23 +339,15 @@ function listenTransactions(uid) {
   });
 }
 
-// АДМИН-ПАНЕЛЬ: Начисление / Списание средств
+// Админ: Начисление баланса пользователю
 creditForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
-  creditMessage.textContent = 'Обработка...';
+  creditMessage.textContent = 'Выполнение...';
   creditMessage.className = 'message muted';
 
-  const action = creditActionSelect.value; // 'add' или 'sub'
   const email = document.getElementById('creditEmail').value.trim();
-  const rawAmount = parseFloat(document.getElementById('creditAmount').value);
-  const defaultReason = action === 'add' ? 'Пополнение баланса' : 'Списание баланса';
-  const reason = document.getElementById('creditReason').value.trim() || defaultReason;
-
-  if (isNaN(rawAmount) || rawAmount <= 0) {
-    creditMessage.textContent = 'Введите корректную сумму.';
-    creditMessage.className = 'message error';
-    return;
-  }
+  const amount = parseFloat(document.getElementById('creditAmount').value);
+  const reason = document.getElementById('creditReason').value.trim() || 'Пополнение администратором';
 
   try {
     const usersQuery = query(collection(db, 'users'), where('email', '==', email));
@@ -279,41 +366,27 @@ creditForm?.addEventListener('submit', async (e) => {
       const targetUserRef = doc(db, 'users', targetUid);
       const targetSnap = await transaction.get(targetUserRef);
 
-      if (!targetSnap.exists()) {
-        throw new Error('Профиль пользователя не существует.');
-      }
-
       const currentBalance = targetSnap.data().balance || 0;
-      let newBalance = currentBalance;
-      let changeAmount = rawAmount;
+      transaction.update(targetUserRef, { balance: currentBalance + amount });
 
-      if (action === 'sub') {
-        if (currentBalance < rawAmount) {
-          throw new Error(`Недостаточно средств. Текущий баланс: ${currentBalance} ₸`);
-        }
-        newBalance = currentBalance - rawAmount;
-        changeAmount = -rawAmount; // Отрицательная сумма в историю
-      } else {
-        newBalance = currentBalance + rawAmount;
-      }
-
-      // Обновляем баланс
-      transaction.update(targetUserRef, { balance: newBalance });
-
-      // Записываем историю транзакции
       const txRef = doc(collection(db, `users/${targetUid}/transactions`));
       transaction.set(txRef, {
         title: reason,
-        amount: changeAmount,
+        amount: amount,
         createdAt: serverTimestamp()
       });
     });
 
-    creditMessage.textContent = action === 'add' ? 'Средства начислены!' : 'Средства списаны!';
+    creditMessage.textContent = 'Средства успешно начислены!';
     creditMessage.className = 'message success';
     creditForm.reset();
   } catch (err) {
-    creditMessage.textContent = err.message || 'Ошибка выполнения.';
+    creditMessage.textContent = err.message;
     creditMessage.className = 'message error';
   }
 });
+
+  <footer>ПОНЬКОФ • демонстрационный виртуальный банк</footer>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

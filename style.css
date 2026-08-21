@@ -5,14 +5,38 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--black);font-family:Arial,Helvetica,sans-serif}
 .topbar{height:74px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 6%;position:sticky;top:0;z-index:5}
+
+/* Шапка и логотип */
 .brand{font-weight:900;letter-spacing:-1px;font-size:22px;display:flex;align-items:center;gap:10px}
-.brand-mark,.logo-circle{background:var(--yellow);display:grid;place-items:center;font-weight:900;border-radius:50%}
-.brand-mark{width:38px;height:38px}
+.brand-logo {
+  height: 20px;
+  width: auto;
+  object-fit: contain;
+}
+
 .user-area{display:flex;align-items:center;gap:14px;font-size:14px}
 .container{max-width:1080px;margin:0 auto;padding:55px 22px 80px}
 .hidden{display:none!important}
 .auth-card{max-width:430px;margin:30px auto;background:#fff;padding:36px;border-radius:28px;box-shadow:0 12px 40px rgba(0,0,0,.07)}
-.logo-circle{width:64px;height:64px;font-size:30px;margin-bottom:20px}
+
+/* Кружок с логотипом на форме входа */
+.logo-circle {
+  width: 64px;
+  height: 64px;
+  background: var(--yellow);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  padding: 12px;
+}
+.auth-logo {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
 h1{font-size:38px;line-height:1.05;margin:0 0 10px;letter-spacing:-1.8px}
 h2{margin:0;font-size:25px;letter-spacing:-.8px}
 h3{margin-top:0}
@@ -40,9 +64,22 @@ input:focus{border-color:#999}
 .section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
 .badge{background:#eee;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:900}
 .badge.admin{background:var(--yellow)}
+
+/* Банковская карта и её логотип */
 .bank-card{max-width:560px;min-height:310px;border-radius:25px;padding:27px;background:linear-gradient(135deg,#ffd900,#ffb900);box-shadow:0 18px 35px rgba(0,0,0,.15);display:flex;flex-direction:column;justify-content:space-between}
 .card-top,.card-bottom{display:flex;justify-content:space-between;align-items:center}
 .card-top{font-size:17px;font-weight:900}
+.card-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-logo {
+  height: 16px;
+  width: auto;
+  object-fit: contain;
+}
+
 .chip{width:52px;height:38px;background:#e5d69b;border-radius:8px;border:1px solid rgba(0,0,0,.2)}
 .card-number{font-size:27px;letter-spacing:3px;font-weight:800}
 .card-bottom{gap:25px;align-items:end}
@@ -59,43 +96,3 @@ input:focus{border-color:#999}
 .admin-note{background:#fff8cc;border-radius:18px;padding:22px}
 footer{text-align:center;color:#999;font-size:12px;padding:25px}
 @media(max-width:700px){.topbar{padding:0 18px}.user-area span{display:none}.container{padding:30px 15px}.welcome{align-items:flex-start;flex-direction:column}.grid,.admin-grid{grid-template-columns:1fr}.card-number{font-size:20px}.bank-card{min-height:270px}.balance{font-size:34px}}
-/* Выравнивание и компактный логотип в шапке */
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.brand-logo {
-  height: 18px; /* Уменьшено с 28px */
-  width: auto;
-  object-fit: contain;
-}
-
-/* Компактный логотип в круге формы входа */
-.logo-circle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  padding: 12px; /* Увеличен отступ внутри круга, чтобы логотип стал меньше */
-}
-
-.auth-logo {
-  max-width: 65%; /* Уменьшено, чтобы логотип свободно сидел в круге */
-  max-height: 65%;
-  object-fit: contain;
-}
-
-/* Компактный логотип на банковской карте */
-.card-brand {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.card-logo {
-  height: 14px; /* Уменьшено с 22px */
-  width: auto;
-  object-fit: contain;
-}

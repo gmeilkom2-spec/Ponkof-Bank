@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Понькоф — личный кабинет</title>
+  <title>Понькоф — Личный кабинет</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -62,14 +62,33 @@
         </div>
       </div>
 
-      <!-- Раздел Кредитования -->
+      <!-- Перевод по номеру карты -->
+      <div class="section">
+        <div class="section-head">
+          <h2>Перевод по номеру карты</h2>
+          <span class="badge">МГНОВЕННО</span>
+        </div>
+        <form id="transferForm">
+          <div class="form-row">
+            <label>Номер карты получателя
+              <input id="transferCardNumber" type="text" placeholder="4400 0000 0000 0000" required maxlength="19">
+            </label>
+            <label>Сумма перевода (₸)
+              <input id="transferAmount" type="number" min="1" step="0.01" placeholder="1000" required>
+            </label>
+          </div>
+          <button class="primary-btn" type="submit" id="transferSubmitBtn">Перевести деньги</button>
+          <p id="transferMessage" class="message"></p>
+        </form>
+      </div>
+
+      <!-- Кредитование -->
       <div class="section credit-section">
         <div class="section-head">
           <h2>Понькоф Кредит</h2>
           <span class="badge">12% ГОДОВЫХ</span>
         </div>
 
-        <!-- Активный кредит -->
         <div id="activeCreditCard" class="active-credit-box hidden">
           <div class="credit-info-grid">
             <div>
@@ -87,7 +106,6 @@
           <p id="creditPayMessage" class="message"></p>
         </div>
 
-        <!-- Форма заявки на кредит -->
         <form id="creditRequestForm" class="credit-form">
           <p class="muted">Получите нужную сумму мгновенно на ваш счет.</p>
           <div class="form-row">
@@ -113,6 +131,7 @@
         </form>
       </div>
 
+      <!-- Виртуальная карта -->
       <div id="cardSection" class="section hidden">
         <div class="section-head">
           <h2>Моя карта</h2>
@@ -153,6 +172,7 @@
         </div>
       </div>
 
+      <!-- История операций -->
       <div class="section">
         <div class="section-head"><h2>История операций</h2></div>
         <div id="transactions" class="transactions">
@@ -160,6 +180,7 @@
         </div>
       </div>
 
+      <!-- Панель Администратора -->
       <section id="adminSection" class="section hidden">
         <div class="section-head">
           <h2>Панель администратора</h2>
@@ -189,6 +210,10 @@
     </section>
   </main>
 
+  <footer>ПОНЬКОФ • демонстрационный виртуальный банк</footer>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
   <footer>ПОНЬКОФ • демонстрационный виртуальный банк</footer>
   <script type="module" src="app.js"></script>
 </body>
